@@ -1,0 +1,20 @@
+apiVersion: v2
+name: drm04
+description: Helm chart for DRM04 - Crowdsourced Disaster Damage Assessment System
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+home: https://github.com/your-org/DRDM04
+sources:
+  - https://github.com/your-org/DRDM04
+maintainers:
+  - name: DRM04 Team
+    email: team@drm04.example.com
+keywords:
+  - disaster
+  - assessment
+  - crowdsourcing
+  - ai
+  - postgis
+  - nextjs
+  - fastapi

@@ -1,0 +1,97 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: drm04
+
+resources:
+  - ../../base/namespace.yaml
+  - ../../base/configmap.yaml
+  - ../../base/secret.yaml
+  - ../../base/web-deployment.yaml
+  - ../../base/web-service-ingress.yaml
+  - ../../base/ai-deployment.yaml
+  - ../../base/ai-service.yaml
+  - ../../base/postgres-statefulset.yaml
+  - ../../base/hpa.yaml
+  - ../../base/network-policies.yaml
+
+commonLabels:
+  environment: production
+
+images:
+  - name: ghcr.io/your-org/drm04-web
+    newTag: v1.0.0
+  - name: ghcr.io/your-org/drm04-ai
+    newTag: v1.0.0
+
+patches:
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: drm04-web
+      spec:
+        replicas: 5
+        template:
+          spec:
+            containers:
+              - name: web
+                resources:
+                  requests:
+                    cpu: "1000m"
+                    memory: "1Gi"
+                  limits:
+                    cpu: "4000m"
+                    memory: "4Gi"
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: drm04-ai
+      spec:
+        replicas: 3
+        template:
+          spec:
+            containers:
+              - name: ai
+                resources:
+                  requests:
+                    cpu: "2000m"
+                    memory: "4Gi"
+                  limits:
+                    cpu: "8000m"
+                    memory: "16Gi"
+  - patch: |-
+      apiVersion: apps/v1
+      kind: StatefulSet
+      metadata:
+        name: postgres
+      spec:
+        template:
+          spec:
+            containers:
+              - name: postgres
+                resources:
+                  requests:
+                    cpu: "1000m"
+                    memory: "2Gi"
+                  limits:
+                    cpu: "4000m"
+                    memory: "8Gi"
+
+configMapGenerator:
+  - name: drm04-config
+    behavior: merge
+    literals:
+      - LOG_LEVEL=info
+      - ENABLE_OFFLINE_MODE=false
+
+# Production secret generator (use External Secrets Operator in real deployment)
+secretGenerator:
+  - name: drm04-secrets
+    behavior: merge
+    literals: []
+    # Values should be set via External Secrets Operator or Sealed Secrets
+    # Example:
+    # - DATABASE_URL=postgresql://...
+    # - SUPABASE_SERVICE_ROLE_KEY=...

@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Next.js
+apps/web/.next/
+apps/web/out/
+apps/web/next-env.d.ts
+
+# Python
+apps/ai/__pycache__/
+apps/ai/.venv/
+*.pyc
+.venv/
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+**/.env
+apps/ai/.env
+
+# Build / logs
+dist/
+build/
+*.log
+
+# Test coverage
+apps/web/coverage/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/

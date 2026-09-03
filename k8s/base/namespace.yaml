@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: drm04
+  labels:
+    name: drm04
+    environment: production
+    app.kubernetes.io/managed-by: kubectl
+    app.kubernetes.io/part-of: drm04
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: drm04-monitoring
+  labels:
+    name: drm04-monitoring
+    environment: production

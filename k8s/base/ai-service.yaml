@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: drm04-ai
+  namespace: drm04
+  labels:
+    app: drm04-ai
+    app.kubernetes.io/name: drm04-ai
+    app.kubernetes.io/part-of: drm04
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+      name: http
+  selector:
+    app: drm04-ai
+---
+# Optional: External access for AI service (if needed)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: drm04-ai
+  namespace: drm04
+  labels:
+    app: drm04-ai
+    app.kubernetes.io/name: drm04-ai
+    app.kubernetes.io/part-of: drm04
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "180"
+    nginx.ingress.kubernetes.io/limit-rps: "5"
+    nginx.ingress.kubernetes.io/limit-burst: "10"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - ai.drm04.example.com
+      secretName: drm04-ai-tls
+  rules:
+    - host: ai.drm04.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: drm04-ai
+                port:
+                  number: 8000

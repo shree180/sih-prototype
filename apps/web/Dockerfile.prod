@@ -1,0 +1,87 @@
+# Multi-stage production build for Next.js
+# Optimized for size, security, and performance
+
+# =============================================================================
+# Base image with security updates
+# =============================================================================
+FROM node:20-alpine AS base
+RUN apk add --no-cache dumb-init curl
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    NPM_CONFIG_LOGLEVEL=warn
+
+# =============================================================================
+# Dependencies stage - install production deps only
+# =============================================================================
+FROM base AS deps
+WORKDIR /app
+
+# Copy package files
+COPY package.json package-lock.json* ./
+
+# Install production dependencies only
+RUN npm ci --omit=dev --ignore-scripts && \
+    npm cache clean --force
+
+# =============================================================================
+# Builder stage - compile TypeScript and build Next.js
+# =============================================================================
+FROM base AS builder
+WORKDIR /app
+
+# Copy node_modules from deps
+COPY --from=deps /app/node_modules ./node_modules
+
+# Copy source code
+COPY . .
+
+# Build arguments for environment-specific config
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+ARG AI_SERVICE_URL
+ARG NEXT_PUBLIC_MAP_STYLE_URL
+ARG NEXT_PUBLIC_STORAGE_ORIGINALS
+ARG NEXT_PUBLIC_STORAGE_REDACTED
+
+ENV NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL} \
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY} \
+    AI_SERVICE_URL=${AI_SERVICE_URL} \
+    NEXT_PUBLIC_MAP_STYLE_URL=${NEXT_PUBLIC_MAP_STYLE_URL} \
+    NEXT_PUBLIC_STORAGE_ORIGINALS=${NEXT_PUBLIC_STORAGE_ORIGINALS} \
+    NEXT_PUBLIC_STORAGE_REDACTED=${NEXT_PUBLIC_STORAGE_REDACTED}
+
+# Build application
+RUN npm run build
+
+# =============================================================================
+# Runner stage - minimal production image
+# =============================================================================
+FROM base AS runner
+WORKDIR /app
+
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Copy public assets
+COPY --from=builder /app/public ./public
+
+# Copy standalone output (includes server.js, .next/static, node_modules)
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Set permissions
+USER nextjs
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:3000/api/health/live || exit 1
+
+EXPOSE 3000
+
+ENV PORT=3000 \
+    HOSTNAME="0.0.0.0"
+
+# Use dumb-init for proper signal handling
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "server.js"]

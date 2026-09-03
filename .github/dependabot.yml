@@ -1,0 +1,159 @@
+# Dependabot configuration for DRM04
+# Automated dependency updates for security and maintenance
+
+version: 2
+updates:
+  # GitHub Actions workflow dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "ci"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  # NPM dependencies for web app
+  - package-ecosystem: "npm"
+    directory: "/apps/web"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:30"
+      timezone: "UTC"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "web"
+    commit-message:
+      prefix: "deps(web)"
+    groups:
+      devDependencies:
+        patterns:
+          - "@types/*"
+          - "eslint*"
+          - "typescript*"
+          - "tailwindcss*"
+          - "postcss*"
+          - "autoprefixer*"
+        update-types:
+          - "minor"
+          - "patch"
+      dependencies:
+        patterns:
+          - "next*"
+          - "react*"
+          - "@supabase/*"
+          - "maplibre-gl*"
+          - "pg*"
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      # Ignore major version updates for core frameworks until tested
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+
+  # Python dependencies for AI service
+  - package-ecosystem: "pip"
+    directory: "/apps/ai"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+      timezone: "UTC"
+    labels:
+      - "dependencies"
+      - "pip"
+      - "ai"
+    commit-message:
+      prefix: "deps(ai)"
+    groups:
+      devDependencies:
+        patterns:
+          - "pytest*"
+          - "black*"
+          - "mypy*"
+          - "ruff*"
+        update-types:
+          - "minor"
+          - "patch"
+      dependencies:
+        patterns:
+          - "fastapi*"
+          - "uvicorn*"
+          - "pydantic*"
+          - "opencv*"
+          - "numpy*"
+          - "pillow*"
+          - "openai*"
+          - "google-generativeai*"
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      # Ignore major version updates for core frameworks until tested
+      - dependency-name: "fastapi"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "pydantic"
+        update-types: ["version-update:semver-major"]
+
+  # Docker base image updates
+  - package-ecosystem: "docker"
+    directory: "/apps/web"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+      timezone: "UTC"
+    labels:
+      - "dependencies"
+      - "docker"
+      - "web"
+    commit-message:
+      prefix: "deps(docker-web)"
+    groups:
+      base-images:
+        patterns:
+          - "node:*"
+    ignore:
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "docker"
+    directory: "/apps/ai"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:30"
+      timezone: "UTC"
+    labels:
+      - "dependencies"
+      - "docker"
+      - "ai"
+    commit-message:
+      prefix: "deps(docker-ai)"
+    groups:
+      base-images:
+        patterns:
+          - "python:*"
+          - "postgis/postgis:*"
+    ignore:
+      - dependency-name: "python"
+        update-types: ["version-update:semver-major"]
+
+# Security advisory notifications
+# Dependabot will automatically create PRs for security vulnerabilities
+# regardless of schedule
