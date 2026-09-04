@@ -1,38 +1,58 @@
 import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
-export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  variant?: "default" | "glass" | "success" | "warning" | "danger" | "info" | "muted";
-}
+/**
+ * shadcn/ui Badge — adapted to the DRM04 Design System v2.1 tokens.
+ * Source pattern: https://ui.shadcn.com/docs/components/badge
+ *
+ * Status rule (§6): badges always pair color + text label, never color alone.
+ * `glass` was removed: translucent white pills are unreadable on light
+ * surfaces. Use `outline` or a semantic variant instead.
+ */
+const badgeVariants = cva(
+  "inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full border px-2.5 py-0.5 text-[11px] font-semibold tracking-wide whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:ring-[var(--accent-500)] focus-visible:ring-offset-1 [&>svg]:pointer-events-none [&>svg]:size-3",
+  {
+    variants: {
+      variant: {
+        default:
+          "border-[var(--ink-200)] bg-[var(--surface-primary)] text-[var(--ink-700)]",
+        secondary:
+          "border-[var(--ink-200)] bg-[var(--surface-secondary)] text-[var(--ink-600)]",
+        muted:
+          "border-[var(--ink-200)] bg-[var(--surface-secondary)] text-[var(--ink-500)]",
+        outline:
+          "border-[var(--ink-300)] bg-transparent text-[var(--ink-700)]",
+        success:
+          "border-[var(--success-500)]/30 bg-[var(--success-100)] text-[var(--success-600)]",
+        warning:
+          "border-[var(--warning-500)]/30 bg-[var(--warning-100)] text-[var(--warning-600)]",
+        danger:
+          "border-[var(--danger-500)]/30 bg-[var(--danger-100)] text-[var(--danger-600)]",
+        info: "border-[var(--info-500)]/30 bg-[var(--info-100)] text-[var(--info-600)]",
+        destructive:
+          "border-[var(--danger-500)]/30 bg-[var(--danger-100)] text-[var(--danger-600)]",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+);
 
-const variantStyles: Record<string, string> = {
-  default: "bg-navy-50 text-navy-700 border-navy-100",
-  glass: "glass-light text-navy-800",
-  success: "bg-emerald-50 text-emerald-700 border-emerald-100",
-  warning: "bg-amber-50 text-amber-700 border-amber-100",
-  danger: "bg-red-50 text-red-700 border-red-100",
-  info: "bg-sky-50 text-sky-700 border-sky-100",
-  muted: "bg-navy-50 text-navy-500 border-navy-100",
-};
+export interface BadgeProps
+  extends React.HTMLAttributes<HTMLSpanElement>,
+    VariantProps<typeof badgeVariants> {}
 
-function Badge({
-  children,
-  className,
-  variant = "default",
-  ...props
-}: BadgeProps) {
+function Badge({ className, variant, ...props }: BadgeProps) {
   return (
     <span
-      className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold tracking-wide border transition-colors",
-        variantStyles[variant],
-        className
-      )}
+      data-slot="badge"
+      data-variant={variant ?? "default"}
+      className={cn(badgeVariants({ variant }), className)}
       {...props}
-    >
-      {children}
-    </span>
+    />
   );
 }
 
-export { Badge };
+export { Badge, badgeVariants };

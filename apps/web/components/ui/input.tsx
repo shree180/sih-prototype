@@ -10,10 +10,10 @@ const Input = React.forwardRef<
       type={type}
       ref={ref}
       className={cn(
-        "flex h-9 w-full rounded-lg border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900",
-        "placeholder:text-navy-400",
+        "flex h-14 w-full rounded-md border border-[var(--ink-200)] bg-[var(--surface-primary)] px-14 py-2 text-sm text-[var(--ink-900)]",
+        "placeholder:text-[var(--ink-400)]",
         "transition-all duration-150",
-        "focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20",
+        "focus:border-[var(--accent-500)] focus:outline-none focus:ring-0 focus:ring-inset focus:ring-2 focus:ring-[var(--accent-500)/14]",
         "disabled:cursor-not-allowed disabled:opacity-50",
         "file:border-0 file:bg-transparent file:text-sm file:font-medium",
         className
@@ -32,10 +32,10 @@ const Textarea = React.forwardRef<
     <textarea
       ref={ref}
       className={cn(
-        "flex min-h-[80px] w-full rounded-lg border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900",
-        "placeholder:text-navy-400",
+        "flex min-h-[120px] w-full rounded-md border border-[var(--ink-200)] bg-[var(--surface-primary)] px-14 py-2 text-sm text-[var(--ink-900)]",
+        "placeholder:text-[var(--ink-400)]",
         "transition-all duration-150",
-        "focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20",
+        "focus:border-[var(--accent-500)] focus:outline-none focus:ring-0 focus:ring-inset focus:ring-2 focus:ring-[var(--accent-500)/14]",
         "disabled:cursor-not-allowed disabled:opacity-50",
         "resize-none",
         className
@@ -53,7 +53,7 @@ const Label = React.forwardRef<
   <label
     ref={ref}
     className={cn(
-      "text-xs font-semibold text-navy-700 tracking-wide",
+      "text-sm font-medium text-[var(--ink-900)] tracking-wide",
       className
     )}
     {...props}
